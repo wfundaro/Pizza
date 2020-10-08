@@ -4,15 +4,34 @@
              x:Class="PizzaApp.MainPage">
 
     <NavigationPage.TitleView>
-        <StackLayout HorizontalOptions="Center"
-                     Margin="{OnPlatform iOS='0,0,25,0', Android='0,0,20,0', Default='0,0,20,0'}"
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="40"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="40"/>
+            </Grid.ColumnDefinitions>
+            <StackLayout Grid.Column="1" Grid.Row="0"
+                     HorizontalOptions="Center"
+                         VerticalOptions="Start"
+                     Margin="{OnPlatform iOS='0,0,0,0', Android='0,10,0,0', Default='0,10,0,0'}"
                      Orientation="Horizontal">
-            <Image Source="pizza_logo.png" HeightRequest="40"/>
-            <Label Text="Pizzas"
+                <Image Source="pizza_logo.png" HeightRequest="40"/>
+                <Label Text="Pizzas"
                    FontAttributes="Bold"
                    TextColor="White"
                    VerticalOptions="Center"/>
-        </StackLayout>
+            </StackLayout>
+            <ImageButton Grid.Column="2" Grid.Row="0"
+                         Margin="{OnPlatform iOS='0,5,5,0', Android='0,10,5,0', Default='0,10,5,0'}"
+                         VerticalOptions="Start"
+                         x:Name="sortButton"
+                         Clicked="SortButtonClick"
+                         Source="sort_none.png"
+                     BackgroundColor="Transparent"/>
+        </Grid>
     </NavigationPage.TitleView>
     <Grid>
         <Grid.RowDefinitions>
