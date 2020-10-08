@@ -1,8 +1,10 @@
-﻿using PizzaApp.Model;
+﻿using Newtonsoft.Json;
+using PizzaApp.Model;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
@@ -12,17 +14,55 @@ namespace PizzaApp
 {
     public partial class MainPage : ContentPage
     {
-        List<Pizza> pizzas;
         public MainPage()
         {
             InitializeComponent();
+            listViewPizza.RefreshCommand = new Command((obj) =>
+            {
+                DownloadData((pizzas) =>
+                {
+                    listViewPizza.ItemsSource = pizzas;
+                    listViewPizza.IsRefreshing = false;
+                });
+                listViewPizza.IsRefreshing = false;
+            });
+            listViewPizza.IsVisible = false;
+            waitLayout.IsVisible = true;
+            DownloadData((pizzas) =>
+            {
+                listViewPizza.ItemsSource = pizzas;
+                listViewPizza.IsVisible = true;
+                waitLayout.IsVisible = false;
+            });
+        }
 
-            pizzas = new List<Pizza>();
-            pizzas.Add(new Pizza { nom = "végétarienne", prix = 7, ingredients = new string[] {"tomate", "poivrons", "oignons" }, imageUrl = "https://cac.img.pmdstatic.net/fit/http.3A.2F.2Fprd2-bone-image.2Es3-website-eu-west-1.2Eamazonaws.2Ecom.2Fcac.2F2018.2F09.2F25.2Ff0f33831-f80e-45b3-9032-593ada3ace5f.2Ejpeg/750x562/quality/80/crop-from/center/cr/wqkgUGF1bGluYSBKQUtPQklFQy9QUklTTUFQSVggLyBDdWlzaW5lIEFjdHVlbGxl/pizza-vegetarienne.jpeg" });
-            pizzas.Add(new Pizza { nom = "montagnarde", prix = 11, ingredients = new string[] { "reblochon", "pomme de terre", "lardons", "oignons", "crème" }, imageUrl = "https://dam.savencia-fromagedairy.com/m/78cb7a72755f6137/TH04_320x320-TH04_pizza-au-reblochon.jpg" });
-            pizzas.Add(new Pizza { nom = "carnivore", prix = 14, ingredients = new string[] {"tomate", "viande hachée", "mozarella" }, imageUrl = "https://assets.tmecosys.com/image/upload/t_web767x639/img/recipe/vimdb/83535.jpg" });
-            
-            listViewPizza.ItemsSource = pizzas;
+        public void DownloadData(Action<List<Pizza>> action)
+        {
+            const string URL = "https://drive.google.com/uc?export=download&id=1VnDkqQpYj7vWl32bfX20LIDoAeXg1FdO";
+            using (var webClient = new WebClient())
+            {
+                webClient.DownloadStringCompleted += (object sender, DownloadStringCompletedEventArgs e) =>
+                {
+                    try
+                    {
+                        string pizzasJson = e.Result;
+                        List<Pizza> pizzas = JsonConvert.DeserializeObject<List<Pizza>>(pizzasJson);
+                        Device.BeginInvokeOnMainThread(() =>
+                        {
+                            action.Invoke(pizzas);
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        Device.BeginInvokeOnMainThread(() =>
+                        {
+                            _ = DisplayAlert("Erreur", ex.Message, "OK");
+                            action.Invoke(null);
+                        });
+                    }
+                };
+                webClient.DownloadStringAsync(new Uri(URL));
+            }
         }
     }
 }

@@ -14,46 +14,61 @@
                    VerticalOptions="Center"/>
         </StackLayout>
     </NavigationPage.TitleView>
-    <ListView x:Name="listViewPizza" RowHeight="100">
-        <ListView.ItemTemplate>
-            <DataTemplate>
-                <ViewCell>
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="90"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="50"/>
-                        </Grid.ColumnDefinitions>
-                        <Image Grid.Column="0"
-                               Source="{Binding imageUrl}"
-                               Margin="10,15,5,15"
-                               Aspect="AspectFill"/>
-                        <StackLayout Grid.Column="1"
-                                     Orientation="Vertical"
-                                     VerticalOptions="Center"
-                                     HorizontalOptions="FillAndExpand">
-                            <Label Text="{Binding titre}" 
-                                   HorizontalOptions="FillAndExpand" 
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <ListView x:Name="listViewPizza"
+                  IsPullToRefreshEnabled="True"
+                  RowHeight="100">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <ViewCell>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="90"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="50"/>
+                            </Grid.ColumnDefinitions>
+                            <Image Grid.Column="0"
+                                   Source="{Binding imageUrl}"
+                                   Margin="10,15,5,15"
+                                   Aspect="AspectFill"/>
+                            <StackLayout Grid.Column="1"
+                                         Orientation="Vertical"
+                                         VerticalOptions="Center"
+                                         HorizontalOptions="FillAndExpand">
+                                <Label Text="{Binding titre}" 
+                                       HorizontalOptions="FillAndExpand" 
+                                       TextColor="Black"
+                                       FontSize="24"/>
+                                <Label Text="{Binding ingredientsStr}"
+                                       FontAttributes="Italic"
+                                       MaxLines="2"
+                                       LineBreakMode="TailTruncation"
+                                       FontSize="16"/>
+                            </StackLayout>
+                            <Label Grid.Column="2"
+                                   Text="{Binding prixEuros}"
+                                   VerticalOptions="Center"
                                    TextColor="Black"
-                                   FontSize="24"/>
-                            <Label Text="{Binding ingredientsStr}"
-                                   FontAttributes="Italic"
-                                   MaxLines="2"
-                                   LineBreakMode="TailTruncation"
-                                   FontSize="16"/>
-                        </StackLayout>
-                        <Label Grid.Column="2"
-                               Text="{Binding prixEuros}"
-                               VerticalOptions="Center"
-                               TextColor="Black"
-                               FontSize="20"
-                               FontAttributes="Bold"/>
-                    </Grid>
-                </ViewCell>
-            </DataTemplate>            
-        </ListView.ItemTemplate>
-    </ListView>
+                                   FontSize="20"
+                                   FontAttributes="Bold"/>
+                        </Grid>
+                    </ViewCell>
+                </DataTemplate>            
+            </ListView.ItemTemplate>
+        </ListView>
+        <StackLayout x:Name="waitLayout"
+                     HorizontalOptions="Center"
+                     VerticalOptions="Center">
+            <ActivityIndicator IsRunning="true"/>
+        </StackLayout>
+    </Grid>
 </ContentPage>
