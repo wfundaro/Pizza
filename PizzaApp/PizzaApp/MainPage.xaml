@@ -56,29 +56,40 @@
                                 <ColumnDefinition Width="50"/>
                             </Grid.ColumnDefinitions>
                             <Image Grid.Column="0"
-                                   Source="{Binding imageUrl}"
+                                   Source="{Binding pizza.imageUrl}"
                                    Margin="10,15,5,15"
                                    Aspect="AspectFill"/>
                             <StackLayout Grid.Column="1"
                                          Orientation="Vertical"
                                          VerticalOptions="Center"
                                          HorizontalOptions="FillAndExpand">
-                                <Label Text="{Binding titre}" 
+                                <Label Text="{Binding pizza.titre}" 
                                        HorizontalOptions="FillAndExpand" 
                                        TextColor="Black"
                                        FontSize="24"/>
-                                <Label Text="{Binding ingredientsStr}"
+                                <Label Text="{Binding pizza.ingredientsStr}"
                                        FontAttributes="Italic"
                                        MaxLines="2"
                                        LineBreakMode="TailTruncation"
                                        FontSize="16"/>
                             </StackLayout>
-                            <Label Grid.Column="2"
-                                   Text="{Binding prixEuros}"
-                                   VerticalOptions="Center"
-                                   TextColor="Black"
-                                   FontSize="20"
-                                   FontAttributes="Bold"/>
+                            <StackLayout Grid.Column="2"
+                                         Orientation="Vertical"
+                                         VerticalOptions="Center"
+                                         Margin="0,0,10,0">
+                                <Label Text="{Binding pizza.prixEuros}"
+                                       VerticalOptions="Center"
+                                       HorizontalOptions="End"
+                                       HorizontalTextAlignment="End"
+                                       TextColor="Black"
+                                       FontSize="20"
+                                       FontAttributes="Bold"/>
+                                <ImageButton BackgroundColor="Transparent"
+                                             HorizontalOptions="End"
+                                             WidthRequest="30"
+                                             Source="{Binding ImageSourceFavory}"
+                                             Command="{Binding FavClickCommand}"/>
+                            </StackLayout>
                         </Grid>
                     </ViewCell>
                 </DataTemplate>            

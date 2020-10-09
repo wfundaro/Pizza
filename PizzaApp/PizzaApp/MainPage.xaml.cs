@@ -19,28 +19,35 @@ namespace PizzaApp
         {
             SORT_NONE,
             SORT_NAME,
-            SORT_PRICE
+            SORT_PRICE,
+            SORT_FAV
         }
         E_sort sortListPizza = E_sort.SORT_NONE;
         List<Pizza> pizzas;
+        List<string> favoryPizzas = new List<string>();
         const string KEY_SORT = "sortListPizza";
+        const string KEY_FAV = "fav";
         string tempFileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "temp");
         string jsonFileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "pizzas.json");
         public MainPage()
         {
             InitializeComponent();
+            // read favory
+            LoadFavList();
+            // check sorting mode
             if (Application.Current.Properties.ContainsKey(KEY_SORT))
             {
                 sortListPizza = (E_sort)Application.Current.Properties[KEY_SORT];
                 sortButton.Source = GetImageSourceFromSort(sortListPizza);
             }
+            // Command for favories buttons
             listViewPizza.RefreshCommand = new Command((obj) =>
             {
                 DownloadData((pizzas) =>
                 {
                     if(pizzas != null)
                     {
-                        listViewPizza.ItemsSource = GetPizzasFromSort(sortListPizza, pizzas);
+                        listViewPizza.ItemsSource = GetPizzaCells(GetPizzasFromSort(sortListPizza, pizzas), favoryPizzas);
                     }
                 });
                 listViewPizza.IsRefreshing = false;
@@ -53,7 +60,7 @@ namespace PizzaApp
                 if (!String.IsNullOrEmpty(pizzasJson))
                 {
                     pizzas = JsonConvert.DeserializeObject<List<Pizza>>(pizzasJson);
-                    listViewPizza.ItemsSource = GetPizzasFromSort(sortListPizza, pizzas);
+                    listViewPizza.ItemsSource = GetPizzaCells(GetPizzasFromSort(sortListPizza, pizzas), favoryPizzas);
                     listViewPizza.IsVisible = true;
                     waitLayout.IsVisible = false;
                 }
@@ -62,7 +69,7 @@ namespace PizzaApp
             {
                 if(pizzas != null)
                 {
-                    listViewPizza.ItemsSource = GetPizzasFromSort(sortListPizza, pizzas);
+                    listViewPizza.ItemsSource = GetPizzaCells(GetPizzasFromSort(sortListPizza, pizzas), favoryPizzas);
                     listViewPizza.IsVisible = true;
                     waitLayout.IsVisible = false;
                 }
@@ -127,7 +134,7 @@ namespace PizzaApp
                 sortListPizza = E_sort.SORT_NONE;
             }
             sortButton.Source = GetImageSourceFromSort(sortListPizza);
-            listViewPizza.ItemsSource = GetPizzasFromSort(sortListPizza, pizzas);
+            listViewPizza.ItemsSource = GetPizzaCells(GetPizzasFromSort(sortListPizza, pizzas), favoryPizzas);
             Application.Current.Properties[KEY_SORT] = (int)sortListPizza;
             Application.Current.SavePropertiesAsync();
         }
@@ -140,6 +147,9 @@ namespace PizzaApp
                     break;
                 case E_sort.SORT_PRICE:
                     ret = "sort_prix.png";
+                    break;
+                case E_sort.SORT_FAV:
+                    ret = "sort_fav.png";
                     break;
                 default:
                     ret = "sort_none.png";
@@ -157,6 +167,7 @@ namespace PizzaApp
             switch (sort)
             {
                 case E_sort.SORT_NAME:
+                case E_sort.SORT_FAV:
                     ret.Sort((p1, p2) => { return p1.titre.CompareTo(p2.titre); });
                     break;
                 case E_sort.SORT_PRICE:
@@ -164,6 +175,59 @@ namespace PizzaApp
                     break;
             }
             return ret;
+        }
+
+        private List<PizzaCell> GetPizzaCells(List<Pizza> p, List<string> f)
+        {
+            List<PizzaCell> ret = new List<PizzaCell>();
+            if (p == null)
+            {
+                return ret;
+            }
+            foreach(Pizza pizza in p)
+            {
+                bool isFav = f.Contains(pizza.nom);
+                if(sortListPizza == E_sort.SORT_FAV)
+                {
+                    if (isFav)
+                    {
+                        ret.Add(new PizzaCell { pizza = pizza, isFavorite = isFav, favChangedAction = OnFavPizzaChanged });
+                    }
+                } else
+                {
+                    ret.Add(new PizzaCell { pizza = pizza, isFavorite = isFav, favChangedAction = OnFavPizzaChanged });
+                }
+            }
+            return ret;
+        }
+
+        private void OnFavPizzaChanged(PizzaCell pizzacell)
+        {
+            bool isInFavList = favoryPizzas.Contains(pizzacell.pizza.nom);
+            if(pizzacell.isFavorite && !isInFavList)
+            {
+                favoryPizzas.Add(pizzacell.pizza.nom);
+                SaveFavList();
+            } 
+            else if(!pizzacell.isFavorite && isInFavList)
+            {
+                favoryPizzas.Remove(pizzacell.pizza.nom);
+                SaveFavList();
+            }
+        }
+        private void SaveFavList()
+        {
+            string json = JsonConvert.SerializeObject(favoryPizzas);
+            Application.Current.Properties[KEY_FAV] = json;
+            Application.Current.SavePropertiesAsync();
+        }
+        private void LoadFavList()
+        {
+            if (Application.Current.Properties.ContainsKey(KEY_FAV))
+            {
+                string json = Application.Current.Properties[KEY_FAV].ToString();
+                favoryPizzas = JsonConvert.DeserializeObject<List<string>>(json);
+            }
         }
     }
 }
